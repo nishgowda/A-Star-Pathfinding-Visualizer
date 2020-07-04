@@ -1,0 +1,32 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>A* Pathfinding Visualizer</title>
+  <style>
+    body {
+        margin: 30px;
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #f0f0f0;
+    }
+    #mycanvas {
+        margin-top: 8px;
+        border: 1px #000 solid;
+        background-color: #fff;
+    }
+</style>
+</head>
+
+
+<body onload="createGrid()">
+<canvas id="mycanvas" style=></canvas>
+<button id="run" onclick="init()">Run</button>
+<button id="startNode">Add Start Node</button>
+<button  id="endNode">Add End Node</button>
+
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="astar.js"></script>
+</html>
