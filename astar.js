@@ -1,89 +1,22 @@
-
-var canvas = document.getElementById("mycanvas");
+$(document).ready(function() {
+let canvas = $("#mycanvas");
+let ctx = canvas.get(0).getContext("2d");
 canvas.width = canvas.height = 500;
-var ctx = canvas.getContext("2d");
 let DIMENSION = 25;
 let WIDTH = canvas.width;
 let HEIGHT = canvas.height;
-
-let startNodeX = 0;
-let startNodeY = 0;
-let endNodeX = 0;
-let endNodeY = 0;
+let startNodeX = 1;
+let startNodeY = 1;
+let endNodeX = 8;
+let endNodeY = 8;
 let startNodeCount = 0;
 let count = 0;
 
-$(document).ready(function() {
-    $("#startNode").click(function() {
-let CANVAS = $("#mycanvas");
-let CTX = CANVAS.get(0).getContext("2d");
-if (startNodeCount <= 1){
-    CANVAS.on('mousemove touchmove touchstart mousedown', mouseFill);
-    function mouseFill(e){
-        let offsetX = e.offsetX;
-        let offsetY = e.offsetY;
-        if (e.which != 1) return;
-       
-        pixel = [Math.floor(offsetX / pixelSize), Math.floor(offsetY / pixelSize)];
-        fillPixel(pixel);
-        startNodeCount++;
-        console.log("START NODE: " + startNodeX + ", " + startNodeY)
-        console.log(startNodeCount);
-        //console.log(e.which); 
-       
-    }
-    
-    function fillPixel(pixel){
-        CTX.fillStyle = "#000000";
-        CTX.fillRect(pixel[0] * pixelSize, pixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);
-        startNodeX += pixel[0];
-        startNodeY += pixel[1];
-    }
-}else{
-    console.log("Already a start Node");
-}
-});
-
-});
-
-$(document).ready(function() {
-let CANVAS = $("#mycanvas");
-let CTX = CANVAS.get(0).getContext("2d");
-$("#endNode").click(function() { 
-if (count <= 1){
-    CANVAS.on('mousemove touchmove touchstart mousedown', mouseENDFill);
-    function mouseENDFill(e){
-        let offSetX = e.offsetX;
-        let offSetY = e.offsetY;
-        if (e.which != 1) return;
-       
-        endPixel = [Math.floor(offSetX / pixelSize), Math.floor(offSetY / pixelSize)];
-        fillEndPixel(endPixel);
-        count++;
-        window.e = e;
-        console.log("END NODE: " + endNodeX + ", " + endNodeY)
-        console.log(count);
-        //console.log(e.which);
-       
-    }
-    function fillEndPixel(endPixel){
-        CTX.fillStyle = "#000000";
-        CTX.fillRect(endPixel[0] * endPixel, endPixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);
-        
-        endNodeX += endPixel[0];
-        endNodeY += endPixel[1];
-        
-    }
-}else{
-    console.log("Already one end node");
-}
-});
-});
-
-var map, opn = [], clsd = [], start = {x:startNodeX, y:startNodeY, f:0, g:0}, 
-goal = {x:8, y:8, f:0, g:0}, mw = 250, mh = 250, neighbours, path;
+var map, opn = [], clsd = [], mw = 250, mh = 250, neighbours, path;
 
 pixelSize = (WIDTH / DIMENSION);
+
+
 
 
 function findNeighbor(arr , node){
@@ -97,7 +30,7 @@ function findNeighbor(arr , node){
     return -1;
 }
 
-function addNeighbours(currentNode){
+function addNeighbours(currentNode, goal){
     var p;
     for (let i=0; i < neighbours.length; i++){
         var n = {x: currentNode.x + neighbours[i].x, y:currentNode.y + neighbours[i].y, g: 0, h:0, prt: {x:currentNode.x, y:currentNode.y}};
@@ -131,7 +64,7 @@ function createPath(){
     }
 }
 
-function solveMap(){
+function solveMap(goal){
     drawMap();
     if (opn.length < 1){
         document.body.appendChild(document.createElement("p")).innerHTML = "No path!";
@@ -144,11 +77,11 @@ function solveMap(){
         drawMap();
         return;
     }
-    addNeighbours(currentNode);
+    addNeighbours(currentNode, goal);
     requestAnimationFrame(solveMap);
 }
 
-function createGrid(){
+
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
     for (let i = 0; i < DIMENSION; i++){
         x = Math.floor(i * WIDTH / DIMENSION);
@@ -163,14 +96,77 @@ function createGrid(){
         ctx.lineTo(WIDTH, y);
         ctx.stroke();
     }
-}
-    // Using JQuery for adding Nodes
-   
 
-           
-         
-  
+
+    // Using JQuery for adding Nodes
+
+       
+    $("#startNode").on("click", function() {
+        startNode();
+    });
     
+    $("#endNode").on("click", function() {
+        $("#startNode").off("click");
+        endNode();
+
+    });
+    
+    function startNode(){
+        if (startNodeCount <= 1){
+            canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
+            function mouseFill(e){
+                let offsetX = e.offsetX;
+                let offsetY = e.offsetY;
+                if (e.which != 1) return;
+               
+                pixel = [Math.floor(offsetX / pixelSize), Math.floor(offsetY / pixelSize)];
+                fillPixel(pixel);
+                startNodeCount++;
+                console.log("START NODE: " + startNodeX + ", " + startNodeY)
+                console.log(startNodeCount);
+                //console.log(e.which); 
+               
+            }
+            
+            function fillPixel(pixel){
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(pixel[0] * pixelSize, pixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);
+                startNodeX += pixel[0];
+                startNodeY += pixel[1];
+            }
+        }else{
+            console.log("Already a start Node");
+        }
+    }
+    function endNode(){ 
+        if (count <= 1){
+            canvas.on('mousemove touchmove touchstart mousedown', mouseENDFill);
+            function mouseENDFill(e){
+                let offSetX = e.offsetX;
+                let offSetY = e.offsetY;
+                if (e.which != 1) return;
+               
+                endPixel = [Math.floor(offSetX / pixelSize), Math.floor(offSetY / pixelSize)];
+                fillEndPixel(endPixel);
+                count++;
+                window.e = e;
+                console.log("END NODE: " + endNodeX + ", " + endNodeY)
+                console.log(count);
+                //console.log(e.which);
+               
+            }
+            function fillEndPixel(endPixel){
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(endPixel[0] * endPixel, endPixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);
+                
+                endNodeX += endPixel[0];
+                endNodeY += endPixel[1];
+                
+            }
+        }else{
+            console.log("Already one end node");
+        }
+    }
 
 function drawMap(){
 
@@ -232,15 +228,18 @@ function createMap(){
     map[7][5] = map[3][6] = map[4][6] = map[5][6] = map[6][6] = map[7][6] = 1;
 }
 
-function init(){
-    document.clear();
-    ctx = canvas.getContext("2d");
-    document.body.appendChild(canvas);
-    console.log(start)
-    neighbours = [
-        {x:1, y:0, c:1}, {x:-1, y:0, c:1}, {x:0, y:1, c:1}, {x:0, y:-1, c:1}, 
-        {x:1, y:1, c:1.4}, {x:1, y:-1, c:1.4}, {x:-1, y:1, c:1.4}, {x:-1, y:-1, c:1.4}
-    ];
-    path = []; createMap(); opn.push( start ); solveMap();
-    
-}
+$("#run").click(function() {
+    if (startNodeCount > 0 && count > 0) {
+        var start = {x:startNodeX, y:startNodeY, f:0, g:0}, goal = {x:endNodeX, y:endNodeY, f:0, g:0}
+        //console.log("THE START NODE COUNT IS: " + startNodeCount);
+        console.log(start)
+        console.log(goal)
+        neighbours = [
+            {x:1, y:0, c:1}, {x:-1, y:0, c:1}, {x:0, y:1, c:1}, {x:0, y:-1, c:1}, 
+            {x:1, y:1, c:1.4}, {x:1, y:-1, c:1.4}, {x:-1, y:1, c:1.4}, {x:-1, y:-1, c:1.4}
+        ];
+        path = []; createMap(); opn.push( start ); solveMap(goal);
+    }
+    });
+
+});
