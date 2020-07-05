@@ -7,26 +7,43 @@
   <title>A* Pathfinding Visualizer</title>
   <style>
     body {
-        margin: 30px;
+        margin: 16px;
         font-family: Arial, Helvetica, sans-serif;
-        background-color: #f0f0f0;
+       
     }
     #mycanvas {
-        margin-top: 8px;
         border: 1px #000 solid;
         background-color: #fff;
+        cursor: pointer;
+    }
+    #mycanvasWrapper {
+        position: relative;
+    }
+    #selectedBox {
+        border: 1px rgba(0, 50, 100, 0.5) solid;
+        background-color: rgba(0, 50, 100, 0.25);
+        position: absolute;
+        pointer-events: none;
     }
 </style>
 </head>
 
 
-<body>
-<canvas id="mycanvas" width="500" height="500"></canvas>
-<button id="run">Run</button>
-<button id="startNode">Add Start Node</button>
+<body class="container text-white bg-dark mb-3">
+<h1>A* Pathfinding Visualizer</h1>
+<button  id="run">Run</button>
+<button  id="startNode">Add Start Node</button>
 <button  id="endNode">Add End Node</button>
+<button  id="walls">Add Walls</button>
+<div id="mycanvasWrapper">
+<canvas id="mycanvas" width="1200" height="800"></canvas>
+</div>
 
 </body>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript" src="astar.js"></script>
+<!-- CSS only -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
 </html>
