@@ -1,3 +1,10 @@
+/* @file: astar.js
+   @author: Nish Gowda
+   @date: 07/05/2020
+   @about: This file includes both the UI and the
+   astar algorithm implementation, which finds the 
+   closest path between two nodes.
+*/
 $(document).ready(function() {
 let canvas = $("#mycanvas");
 let ctx = canvas.get(0).getContext("2d");
