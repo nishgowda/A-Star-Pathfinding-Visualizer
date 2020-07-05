@@ -1,23 +1,34 @@
 $(document).ready(function() {
 let canvas = $("#mycanvas");
 let ctx = canvas.get(0).getContext("2d");
-canvas.width = canvas.height = 500;
 let DIMENSION = 25;
-let WIDTH = canvas.width;
-let HEIGHT = canvas.height;
-let startNodeX = 1;
-let startNodeY = 1;
-let endNodeX = 8;
-let endNodeY = 8;
+let WIDTH = canvas.width();
+let HEIGHT = canvas.height();
+
+let startNodeX;
+let startNodeY;
+let endNodeX;
+let endNodeY;
 let startNodeCount = 0;
 let count = 0;
-
-var map, opn = [], clsd = [], mw = 250, mh = 250, neighbours, path;
+var start, goal, map, opn = [], clsd = [], mw = 250, mh = 250, neighbours, path;
 
 pixelSize = (WIDTH / DIMENSION);
 
-
-
+ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+for (let i = 0; i < DIMENSION; i++){
+    x = Math.floor(i * WIDTH / DIMENSION);
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, HEIGHT);
+    ctx.stroke();
+    
+    y = Math.floor(i * HEIGHT / DIMENSION);
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(WIDTH, y);
+    ctx.stroke();
+}
 
 function findNeighbor(arr , node){
     var a;
@@ -30,7 +41,7 @@ function findNeighbor(arr , node){
     return -1;
 }
 
-function addNeighbours(currentNode, goal){
+function addNeighbours(currentNode){
     var p;
     for (let i=0; i < neighbours.length; i++){
         var n = {x: currentNode.x + neighbours[i].x, y:currentNode.y + neighbours[i].y, g: 0, h:0, prt: {x:currentNode.x, y:currentNode.y}};
@@ -64,7 +75,7 @@ function createPath(){
     }
 }
 
-function solveMap(goal){
+function solveMap(){
     drawMap();
     if (opn.length < 1){
         document.body.appendChild(document.createElement("p")).innerHTML = "No path!";
@@ -82,91 +93,77 @@ function solveMap(goal){
 }
 
 
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-    for (let i = 0; i < DIMENSION; i++){
-        x = Math.floor(i * WIDTH / DIMENSION);
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, HEIGHT);
-        ctx.stroke();
-        
-        y = Math.floor(i * HEIGHT / DIMENSION);
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(WIDTH, y);
-        ctx.stroke();
-    }
 
 
     // Using JQuery for adding Nodes
-
-       
-    $("#startNode").on("click", function() {
-        startNode();
-    });
-    
-    $("#endNode").on("click", function() {
-        $("#startNode").off("click");
-        endNode();
-
-    });
-    
-    function startNode(){
-        if (startNodeCount <= 1){
+    let startENABLED = true;
+        $("#startNode").on('click', function() {
+            
             canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
             function mouseFill(e){
+                e.preventDefault()
+                if (!startENABLED) return;
                 let offsetX = e.offsetX;
                 let offsetY = e.offsetY;
                 if (e.which != 1) return;
-               
                 pixel = [Math.floor(offsetX / pixelSize), Math.floor(offsetY / pixelSize)];
                 fillPixel(pixel);
                 startNodeCount++;
+                
                 console.log("START NODE: " + startNodeX + ", " + startNodeY)
                 console.log(startNodeCount);
+                startENABLED = false;
                 //console.log(e.which); 
-               
             }
             
             function fillPixel(pixel){
+                
+
                 ctx.fillStyle = "#000000";
                 ctx.fillRect(pixel[0] * pixelSize, pixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);
-                startNodeX += pixel[0];
-                startNodeY += pixel[1];
+                const nodeX = pixel[0];
+                const nodeY = pixel[1];
+                startNodeX = nodeX;
+                startNodeY = nodeY;
             }
-        }else{
-            console.log("Already a start Node");
-        }
-    }
-    function endNode(){ 
-        if (count <= 1){
+       
+        console.log(startENABLED);
+             
+    });
+    
+
+
+
+    let endENABLED = true;
+    $("#endNode").on('click', function() {  
+
             canvas.on('mousemove touchmove touchstart mousedown', mouseENDFill);
             function mouseENDFill(e){
+                e.preventDefault()
+                if (!endENABLED) return;
                 let offSetX = e.offsetX;
                 let offSetY = e.offsetY;
                 if (e.which != 1) return;
-               
                 endPixel = [Math.floor(offSetX / pixelSize), Math.floor(offSetY / pixelSize)];
                 fillEndPixel(endPixel);
                 count++;
-                window.e = e;
+                //window.e = e;
                 console.log("END NODE: " + endNodeX + ", " + endNodeY)
                 console.log(count);
+                endENABLED = false;
                 //console.log(e.which);
-               
             }
             function fillEndPixel(endPixel){
                 ctx.fillStyle = "#000000";
-                ctx.fillRect(endPixel[0] * endPixel, endPixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);
-                
-                endNodeX += endPixel[0];
-                endNodeY += endPixel[1];
-                
+                ctx.fillRect(endPixel[0] * endPixel, endPixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);      
+                const endnodeX = endPixel[0];
+                const endnodeY = endPixel[1];  
+                endNodeX = endnodeX;
+                endNodeY = endnodeY;
             }
-        }else{
-            console.log("Already one end node");
-        }
-    }
+        
+        console.log(endENABLED);
+    });
 
 function drawMap(){
 
@@ -230,7 +227,8 @@ function createMap(){
 
 $("#run").click(function() {
     if (startNodeCount > 0 && count > 0) {
-        var start = {x:startNodeX, y:startNodeY, f:0, g:0}, goal = {x:endNodeX, y:endNodeY, f:0, g:0}
+        start = {x:startNodeX, y:startNodeY, f:0, g:0};
+        goal = {x:endNodeX, y:endNodeY, f:0, g:0};
         //console.log("THE START NODE COUNT IS: " + startNodeCount);
         console.log(start)
         console.log(goal)
@@ -238,7 +236,7 @@ $("#run").click(function() {
             {x:1, y:0, c:1}, {x:-1, y:0, c:1}, {x:0, y:1, c:1}, {x:0, y:-1, c:1}, 
             {x:1, y:1, c:1.4}, {x:1, y:-1, c:1.4}, {x:-1, y:1, c:1.4}, {x:-1, y:-1, c:1.4}
         ];
-        path = []; createMap(); opn.push( start ); solveMap(goal);
+        path = []; createMap(); opn.push( start ); solveMap();
     }
     });
 
