@@ -97,11 +97,10 @@ function solveMap(){
 
     // Using JQuery for adding Nodes
     let startENABLED = true;
-        $("#startNode").on('click', function() {
-            
+        $("#startNode").click(function() { 
             canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
             function mouseFill(e){
-                e.preventDefault()
+                //e.preventDefault()
                 if (!startENABLED) return;
                 let offsetX = e.offsetX;
                 let offsetY = e.offsetY;
@@ -117,14 +116,10 @@ function solveMap(){
             }
             
             function fillPixel(pixel){
-                
-
                 ctx.fillStyle = "#000000";
                 ctx.fillRect(pixel[0] * pixelSize, pixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);
-                const nodeX = pixel[0];
-                const nodeY = pixel[1];
-                startNodeX = nodeX;
-                startNodeY = nodeY;
+                startNodeX = pixel[0];
+                startNodeY  = pixel[1];
             }
        
         console.log(startENABLED);
@@ -135,17 +130,16 @@ function solveMap(){
 
 
     let endENABLED = true;
-    $("#endNode").on('click', function() {  
-
+    $("#endNode").click( function() {  
             canvas.on('mousemove touchmove touchstart mousedown', mouseENDFill);
             function mouseENDFill(e){
-                e.preventDefault()
+                //e.preventDefault()
                 if (!endENABLED) return;
-                let offSetX = e.offsetX;
-                let offSetY = e.offsetY;
+                let offsetX = e.offsetX;
+                let offsetY = e.offsetY;
                 if (e.which != 1) return;
-                endPixel = [Math.floor(offSetX / pixelSize), Math.floor(offSetY / pixelSize)];
-                fillEndPixel(endPixel);
+                pixel = [Math.floor(offsetX / pixelSize), Math.floor(offsetY / pixelSize)];
+                fillPixel(pixel);
                 count++;
                 //window.e = e;
                 console.log("END NODE: " + endNodeX + ", " + endNodeY)
@@ -153,13 +147,11 @@ function solveMap(){
                 endENABLED = false;
                 //console.log(e.which);
             }
-            function fillEndPixel(endPixel){
+            function fillPixel(pixel){
                 ctx.fillStyle = "#000000";
-                ctx.fillRect(endPixel[0] * endPixel, endPixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);      
-                const endnodeX = endPixel[0];
-                const endnodeY = endPixel[1];  
-                endNodeX = endnodeX;
-                endNodeY = endnodeY;
+                ctx.fillRect(pixel[0] * pixelSize, pixel[1] * pixelSize, pixelSize - 1, pixelSize - 1);      
+                endNodeX= pixel[0];
+                endNodeY = pixel[1];  
             }
         
         console.log(endENABLED);
