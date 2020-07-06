@@ -260,10 +260,10 @@ $(document).ready(function() {
                 a = path[i];
                 ctx.fillStyle = "#00FF7F";
                 ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX, pixelSizeY);
-                txt += "(" + a.x + ", " + a.y + ") ";
+                //txt += "(" + a.x + ", " + a.y + ") ";
             }
 
-            document.body.appendChild(document.createElement("p")).innerHTML = txt + "]";
+            //document.body.appendChild(document.createElement("p")).innerHTML = txt + "]";
             return;
         }
         for (let i = 0; i< openSet.length; i++){
