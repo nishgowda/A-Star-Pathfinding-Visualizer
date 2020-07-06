@@ -5,26 +5,25 @@
    astar algorithm implementation, which finds the 
    closest path between two nodes.
 */
+
 $(document).ready(function() {
 let canvas = $("#mycanvas");
 let ctx = canvas.get(0).getContext("2d");
 let DIMENSION = 40;
 let WIDTH = canvas.width();
 let HEIGHT = canvas.height();
-console.log(WIDTH / DIMENSION);
+
 pixelSizeX = Math.ceil(WIDTH / DIMENSION);
 pixelSizeY = Math.ceil(HEIGHT / DIMENSION);
 let startNodeX;
 let startNodeY;
 let endNodeX;
 let endNodeY;
-let startNodeCount = 0;
-let count = 0;
-var start, goal, map, opn = [], clsd = [], mw = 400, mh = 400, neighbours, path;
 
+var startNode, targetNode, map, openSet = [], closedSet = [], mapWidth = DIMENSION, mapHeight = DIMENSION, neighbors, path;
 SELECTEDBOX = null;
-console.log(pixelSizeX);
-console.log(pixelSizeY);
+
+// Draw out the opening grid where users can add a start node, end node, and walls
 ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
 for (let i = 0; i < DIMENSION; i++){
     x = Math.floor(i * WIDTH / DIMENSION);
@@ -60,38 +59,38 @@ function findWall(node){
     return -1;
 }
 
-
-function addNeighbours(currentNode){
+// Finds the neighbors of the current Node and add them to the openSet
+function addNeighbors(currentNode){
     var p;
-    for (let i=0; i < neighbours.length; i++){
-        var n = {x: currentNode.x + neighbours[i].x, y:currentNode.y + neighbours[i].y, g: 0, h:0, prt: {x:currentNode.x, y:currentNode.y}};
+    for (let i=0; i < neighbors.length; i++){
+        var n = {x: currentNode.x + neighbors[i].x, y:currentNode.y + neighbors[i].y, g: 0, h:0, prt: {x:currentNode.x, y:currentNode.y}};
         // if current node x and y dist are not the same or if the node is not a neighbor or if node is  not a wall
-        if (map[n.x][n.y] === 1 || findNeighbor(clsd, n) > -1 || findWall(n) > -1){
+        if (map[n.x][n.y] === 1 || findNeighbor(closedSet, n) > -1 || findWall(n) > -1){
             continue;
         }
-        n.g = currentNode.g + neighbours[i].c; 
-        n.h = Math.abs(goal.x - n.x) + Math.abs(goal.y - n.y);
-        p = findNeighbor(opn, n);
-            if (p > -1 && opn[p].g + opn[p].h <= n.g + n.h){
+        n.g = currentNode.g + neighbors[i].c; 
+        n.h = Math.abs(targetNode.x - n.x) + Math.abs(targetNode.y - n.y);
+        p = findNeighbor(openSet, n);
+            if (p > -1 && openSet[p].g + openSet[p].h <= n.g + n.h){
                 continue;
             }
-            opn.push(n);
+            openSet.push(n);
         }
-        opn.sort(function(a, b){
+        openSet.sort(function(a, b){
             return (a.g + a.h) - (b.g + b.h);
         }); 
     }
 
 
 
-
+// Creates the path for the two nodes 
 function createPath(){
     path = [];
     var a, b;
-    a = clsd.pop();
+    a = closedSet.pop();
     path.push(a);
-    while(clsd.length){
-        b = clsd.pop();
+    while(closedSet.length){
+        b = closedSet.pop();
             if(b.x != a.prt.x || b.y != a.prt.y){
                 continue;
        }
@@ -100,73 +99,36 @@ function createPath(){
     }
 }
 
+// Solves the path of the two nodes. 
+// If the openSet is less then one, then we end up with no path
+// else create the path and visualize it
 function solveMap(){
     drawMap();
-    if (opn.length < 1){
+    if (openSet.length < 1){
         document.body.appendChild(document.createElement("p")).innerHTML = "No path!";
         return;
     }
-    var currentNode = opn.splice(0, 1)[0];
-    clsd.push(currentNode);
+    var currentNode = openSet.splice(0, 1)[0];
+    closedSet.push(currentNode);
 
-    if (currentNode.x == goal.x && currentNode.y == goal.y){
+    if (currentNode.x == targetNode.x && currentNode.y == targetNode.y){
         createPath();
         drawMap();
         return;
     }
-    addNeighbours(currentNode);
+    addNeighbors(currentNode);
     requestAnimationFrame(solveMap);
 }
 
 
 
 
-    // Using JQuery for adding Nodes
+    // Using JQuery to allow the user to add the start 
+    // and end node to the board, as well as create the
+    // selector for the mouse cursor and prepend it to 
+    // the wrapper div in HTML
     let startENABLED = true;
-        $("#startNode").click(function() { 
-            canvas.mousemove(function(e){
-                let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
-                if (!SELECTEDBOX){
-                    SELECTEDBOX = $("<div id=selectedBox></div>");
-                    SELECTEDBOX.css({width: pixelSizeX - 2, height:  pixelSizeY -2});
-                    $("#mycanvasWrapper").prepend(SELECTEDBOX);
-                }
-                SELECTEDBOX.css({
-                    left: pixel[0] * pixelSizeX + 1,
-                    top: pixel[1] * pixelSizeY
-                });
-            });
-
-
-            canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
-            function mouseFill(e){
-                e.preventDefault()
-                if (!startENABLED) return;
-                let offsetX = e.offsetX;
-                let offsetY = e.offsetY;
-                if (e.which != 1) return;
-                pixel = [Math.floor(offsetX / pixelSizeX), Math.floor(offsetY / pixelSizeY)];
-                fillPixel(pixel);
-                startNodeCount++;
-                
-                console.log("START NODE: " + startNodeX + ", " + startNodeY)
-                console.log(startNodeCount);
-                startENABLED = false;
-            }
-            
-            function fillPixel(pixel){
-                ctx.fillStyle = "#0275d8";
-                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);
-                startNodeX = pixel[0];
-                startNodeY  = pixel[1];
-            }
-       
-        console.log(startENABLED);
-             
-    });
-    
-    let endENABLED = true;
-    $("#endNode").click( function() { 
+    $("#startNode").click(function() { 
         canvas.mousemove(function(e){
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
@@ -178,34 +140,71 @@ function solveMap(){
                 left: pixel[0] * pixelSizeX + 1,
                 top: pixel[1] * pixelSizeY
             });
-        }); 
-            canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
-            function mouseFill(e){
-                e.preventDefault()
-                if (!endENABLED) return;
-                let offsetX = e.offsetX;
-                let offsetY = e.offsetY;
-                if (e.which != 1) return;
-                pixel = [Math.floor(offsetX / pixelSizeX), Math.floor(offsetY / pixelSizeY)];
-                fillPixel(pixel);
-                count++;
-                //window.e = e;
-                console.log("END NODE: " + endNodeX + ", " + endNodeY)
-                console.log(count);
-                endENABLED = false;
-                //console.log(e.which);
-            }
-            function fillPixel(pixel){
-                ctx.fillStyle = "#d9534f";
-                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);      
-                endNodeX= pixel[0];
-                endNodeY = pixel[1];  
-            }
-        
-        console.log(endENABLED);
-    });
+        });
 
-    // Function to draw walls in grid.
+
+        canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
+        function mouseFill(e){
+            e.preventDefault()
+            if (!startENABLED) return;
+            let offsetX = e.offsetX;
+            let offsetY = e.offsetY;
+            if (e.which != 1) return;
+            pixel = [Math.floor(offsetX / pixelSizeX), Math.floor(offsetY / pixelSizeY)];
+            fillPixel(pixel);
+            startENABLED = false;
+        }
+        
+        function fillPixel(pixel){
+            ctx.fillStyle = "#0275d8";
+            ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);
+            startNodeX = pixel[0];
+            startNodeY  = pixel[1];
+        }
+
+    console.log(startENABLED);
+        
+});
+
+let endENABLED = true;
+$("#endNode").click( function() { 
+    canvas.mousemove(function(e){
+        let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
+        if (!SELECTEDBOX){
+            SELECTEDBOX = $("<div id=selectedBox></div>");
+            SELECTEDBOX.css({width: pixelSizeX - 2, height:  pixelSizeY -2});
+            $("#mycanvasWrapper").prepend(SELECTEDBOX);
+        }
+        SELECTEDBOX.css({
+            left: pixel[0] * pixelSizeX + 1,
+            top: pixel[1] * pixelSizeY
+        });
+    }); 
+        canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
+        function mouseFill(e){
+            e.preventDefault()
+            if (!endENABLED) return;
+            let offsetX = e.offsetX;
+            let offsetY = e.offsetY;
+            if (e.which != 1) return;
+            pixel = [Math.floor(offsetX / pixelSizeX), Math.floor(offsetY / pixelSizeY)];
+            fillPixel(pixel);
+            endENABLED = false;
+
+        }
+        function fillPixel(pixel){
+            ctx.fillStyle = "#d9534f";
+            ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);      
+            endNodeX= pixel[0];
+            endNodeY = pixel[1];  
+        }
+    
+    console.log(endENABLED);
+});
+
+    // Using JQuery to allow the user to create and draw
+    // walls on the grid and appends the created walls to an 
+    // array by grabbing the x and y coordinate of the filled pixel
     let walls = []
     $("#walls").click( function(){
         canvas.mousemove(function(e){
@@ -228,7 +227,7 @@ function solveMap(){
             if (e.which != 1) return;
             pixel = [Math.floor(offsetX / pixelSizeX), Math.floor(offsetY / pixelSizeY)];
             fillPixel(pixel);
-            //console.log(wallsX + " " + wallsY);
+
 
         }
         function fillPixel(pixel){
@@ -242,6 +241,9 @@ function solveMap(){
         
     });
 
+// Given a solved path, draw the path by filling rect given the pixel
+// coordinates. Along with the path, the closed and open set are drawn
+// as well.
 function drawMap(){
     var a;
     if (path.length){
@@ -256,24 +258,25 @@ function drawMap(){
         document.body.appendChild(document.createElement("p")).innerHTML = txt + "]";
         return;
     }
-    for (let i = 0; i< opn.length; i++){
-        a = opn[i];
+    for (let i = 0; i< openSet.length; i++){
+        a = openSet[i];
         ctx.fillStyle = "#FF6347";
         ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY , pixelSizeX, pixelSizeY);
     }
-    for (let i= 0; i< clsd.length; i++){
-        a = clsd[i];
+    for (let i= 0; i< closedSet.length; i++){
+        a = closedSet[i];
         ctx.fillStyle = "#8B0000";
         ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX, pixelSizeY);
     }
 }
-
+// Given the dimensions of the map, we create the map that our
+// drawMap() and solveMap will use to actually solve and draw on.
 function createMap(){
-    map = new Array(mw);
-    for (let i = 0; i< mw; i++){
-        map[i] = new Array(mh);
-        for (let j = 0; j < mh; j++){
-            if (!i || !j || i == mw -1 || j == mh -1){
+    map = new Array(mapWidth);
+    for (let i = 0; i< mapWidth; i++){
+        map[i] = new Array(mapHeight);
+        for (let j = 0; j < mapHeight; j++){
+            if (!i || !j || i == mapWidth -1 || j == mapHeight -1){
                 map[i][j] = 1;
             }else{
                 map[i][j] = 0;
@@ -284,25 +287,20 @@ function createMap(){
     map[7][5] = map[3][6] = map[4][6] = map[5][6] = map[6][6] = map[7][6] = 1;
 }
 
-
-
-
-
+// The run function, given a click even with JQuery, when the user 
+// adds a start and end node (also walls if they wish), then we run the algorithm.
 $("#run").click(function() {
-    if (startNodeCount > 0 && count > 0) {
         console.log(walls);
-        start = {x:startNodeX, y:startNodeY, f:0, g:0};
-        goal = {x:endNodeX, y:endNodeY, f:0, g:0};
-        //console.log("THE START NODE COUNT IS: " + startNodeCount);
-        console.log(start)
-        console.log(goal)
-        neighbours = [
+        startNode = {x:startNodeX, y:startNodeY, f:0, g:0};
+        targetNode = {x:endNodeX, y:endNodeY, f:0, g:0};
+
+        neighbors = [
             {x:1, y:0, c:1}, {x:-1, y:0, c:1}, {x:0, y:1, c:1}, {x:0, y:-1, c:1}, 
             {x:1, y:1, c:1.4}, {x:1, y:-1, c:1.4}, {x:-1, y:1, c:1.4}, {x:-1, y:-1, c:1.4}
         ];
-       // console.log(neighbours);
-        path = []; createMap(); opn.push( start ); solveMap();
-    }
+
+        path = []; createMap(); openSet.push( startNode ); solveMap();
+    
     });
 
 });
