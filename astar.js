@@ -15,12 +15,16 @@ $(document).ready(function() {
     let HEIGHT = canvas.height();
     pixelSizeX = Math.ceil(WIDTH / DIMENSIONX);
     pixelSizeY = Math.ceil(HEIGHT / DIMENSIONY);
-    let startNodeX;
-    let startNodeY;
-    let endNodeX;
-    let endNodeY;
+    let startNodeX = 0;
+    let startNodeY = 0;
+    let endNodeX = 0;
+    let endNodeY = 0;
 
-    var startNode, targetNode, map, openSet = [], closedSet = [], mapWidth = DIMENSIONX, mapHeight = DIMENSIONY, neighbors, path;
+    var startNode, targetNode, map, openSet = [], closedSet = [], mapWidth = DIMENSIONX, mapHeight = DIMENSIONY, neighbors;
+    var  startENABLED; 
+    var endENABLED;
+    var wallENABLED;
+    let path = [];
     SELECTEDBOX = null;
 
     // Draw out the opening grid where users can add a start node, end node, and walls
@@ -38,6 +42,21 @@ $(document).ready(function() {
         ctx.lineTo(WIDTH, y);
         ctx.stroke();
     }
+
+    // Firefox mouse down fix
+    let firefoxEnabled = false;
+
+    window.addEventListener('mousedown', e => {
+        firefoxEnabled = true;
+    });
+        
+    window.addEventListener('mouseup', e => {
+        if (firefoxEnabled === true) {
+            firefoxEnabled = false;
+        }
+    });
+
+
     // Checks if the current node is a neighbor
     function findNeighbor(arr , node){
         var a;
@@ -125,8 +144,9 @@ $(document).ready(function() {
     // and end node to the board, as well as create the
     // selector for the mouse cursor and prepend it to 
     // the wrapper div in HTML
-    let startENABLED = true;
+ startENABLED = true;
     $("#startNode").click(function() { 
+        console.log("is start enabled?" + startENABLED);
         canvas.mousemove(function(e){
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
@@ -141,11 +161,16 @@ $(document).ready(function() {
         });
         canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
         function mouseFill(e){
-            e.preventDefault()
+            e.preventDefault();
+     
+            var touchstart = e.type === 'touchstart' || e.type === 'touchmove';
+            e = touchstart ? e.originalEvent : e;
+            var rect = $("#mycanvas");
+            var offsetX = touchstart ? e.targetTouches[0].pageX - rect.offset().left : e.offsetX;
+            var offsetY = touchstart ? e.targetTouches[0].pageY - rect.offset().top : e.offsetY;
             if (!startENABLED) return;
-            let offsetX = e.offsetX;
-            let offsetY = e.offsetY;
-            if (e.which != 1) return;
+            if (!firefoxEnabled) return;
+            if (e.which != 1 && !touchstart) return;
             pixel = [Math.floor(offsetX / pixelSizeX), Math.floor(offsetY / pixelSizeY)];
             fillPixel(pixel);
             startENABLED = false;
@@ -159,8 +184,9 @@ $(document).ready(function() {
         }
     });
 
-    let endENABLED = true;
+    endENABLED = true;
     $("#endNode").click( function() { 
+        console.log("is end enabled?" + endENABLED);
         canvas.mousemove(function(e){
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
@@ -175,16 +201,22 @@ $(document).ready(function() {
         }); 
             canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
             function mouseFill(e){
-                e.preventDefault()
+                e.preventDefault();
+
+
+                var touchstart = e.type === 'touchstart' || e.type === 'touchmove';
+                e = touchstart ? e.originalEvent : e;
+                var rect = $("#mycanvas");
+                var offsetX = touchstart ? e.targetTouches[0].pageX - rect.offset().left : e.offsetX;
+                var offsetY = touchstart ? e.targetTouches[0].pageY - rect.offset().top : e.offsetY;
                 if (!endENABLED) return;
-                let offsetX = e.offsetX;
-                let offsetY = e.offsetY;
-                if (e.which != 1) return;
+                if (!firefoxEnabled) return;
+                if (e.which != 1 && !touchstart) return;
                 pixel = [Math.floor(offsetX / pixelSizeX), Math.floor(offsetY / pixelSizeY)];
                 fillPixel(pixel);
                 endENABLED = false;
-
             }
+
             function fillPixel(pixel){
                 ctx.fillStyle = "#d9534f";
                 ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);      
@@ -197,8 +229,11 @@ $(document).ready(function() {
     // walls on the grid and appends the created walls to an 
     // array by grabbing the x and y coordinate of the filled pixel
     let walls = []
+    wallENABLED = true;
     $("#walls").click( function(){
+        console.log("WALL?" + wallENABLED);
         canvas.mousemove(function(e){
+
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
                 SELECTEDBOX = $("<div id=selectedBox></div>");
@@ -212,9 +247,16 @@ $(document).ready(function() {
             });
             canvas.on('mousemove touchmove touchstart mousedown', mouseFill);
             function mouseFill(e){
-                let offsetX = e.offsetX;
-                let offsetY = e.offsetY;
-                if (e.which != 1) return;
+                e.preventDefault(); 
+                
+                var touchstart = e.type === 'touchstart' || e.type === 'touchmove';
+                e = touchstart ? e.originalEvent : e;
+                var rect = $("#mycanvas");
+                var offsetX = touchstart ? e.targetTouches[0].pageX - rect.offset().left : e.offsetX;
+                var offsetY = touchstart ? e.targetTouches[0].pageY - rect.offset().top : e.offsetY;
+                if (!wallENABLED) return;
+                if (!firefoxEnabled) return;
+                if (e.which != 1 && !touchstart) return;
                     pixel = [Math.floor(offsetX / pixelSizeX), Math.floor(offsetY / pixelSizeY)];
                     fillPixel(pixel);
                 }
@@ -228,7 +270,8 @@ $(document).ready(function() {
         }
         // Allows user to delete any of the walls they created.
             canvas.on('mousemove touchmove touchstart mousedown', mouseUnfill);
-            function mouseUnfill(e){    
+            function mouseUnfill(e){  
+                e.preventDefault();   
                 let offsetX = e.offsetX;
                 let offsetY = e.offsetY;
                 if (!e.shiftKey && e.keyCode != 1) return;
@@ -245,36 +288,28 @@ $(document).ready(function() {
             }
     });
         
-
-
-
-
     // Given a solved path, draw the path by filling rect given the pixel
     // coordinates. Along with the path, the closed and open set are drawn
     // as well.
     function drawMap(){
         var a;
         if (path.length){
-            var txt = "Path: " + (path.length - 1) + "<br />[";
-            for (let i = path.length - 1; i > -1; i --){
+            for (let i = 0; i < path.length; i++){
                 a = path[i];
                 ctx.fillStyle = "#00FF7F";
-                ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX, pixelSizeY);
-                //txt += "(" + a.x + ", " + a.y + ") ";
+                ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX - 1 , pixelSizeY - 1 );
             }
-
-            //document.body.appendChild(document.createElement("p")).innerHTML = txt + "]";
             return;
         }
         for (let i = 0; i< openSet.length; i++){
             a = openSet[i];
             ctx.fillStyle = "#FF6347";
-            ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY , pixelSizeX, pixelSizeY);
+            ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY , pixelSizeX - 1 , pixelSizeY - 1);
         }
         for (let i= 0; i< closedSet.length; i++){
             a = closedSet[i];
             ctx.fillStyle = "#8B0000";
-            ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX, pixelSizeY);
+            ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX- 1, pixelSizeY - 1);
         }
     }
     // Given the dimensions of the map, we create the map that our
@@ -297,17 +332,22 @@ $(document).ready(function() {
 
     // The run function, given a click even with JQuery, when the user 
     // adds a start and end node (also walls if they wish), then we run the algorithm.
+
     $("#run").click(function() {
-        console.log(walls);
         startNode = {x:startNodeX, y:startNodeY, f:0, g:0};
         targetNode = {x:endNodeX, y:endNodeY, f:0, g:0};
-
+        console.log(startNode.x + startNode.y + " " + targetNode.x + targetNode.y);
         neighbors = [
             {x:1, y:0, c:1}, {x:-1, y:0, c:1}, {x:0, y:1, c:1}, {x:0, y:-1, c:1}, 
             {x:1, y:1, c:1.4}, {x:1, y:-1, c:1.4}, {x:-1, y:1, c:1.4}, {x:-1, y:-1, c:1.4}
         ];
 
-        path = []; createMap(); openSet.push( startNode ); solveMap();
-
+         createMap(); openSet.push( startNode ); solveMap();
         });
+
+    // Resets page when request to clear board.
+    // TODO fix original clear function. Issues with setting start and target node back.
+    $("#clear").click(function(){
+        location.reload();
+    })
 });
