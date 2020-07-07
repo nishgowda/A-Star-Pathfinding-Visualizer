@@ -9,8 +9,8 @@
 $(document).ready(function() {
     let canvas = $("#mycanvas");
     let ctx = canvas.get(0).getContext("2d");
-    let DIMENSIONX = 40;
-    let DIMENSIONY = 20;
+    let DIMENSIONX = 60;
+    let DIMENSIONY = 40;
     let WIDTH = canvas.width();
     let HEIGHT = canvas.height();
     pixelSizeX = Math.ceil(WIDTH / DIMENSIONX);
@@ -123,7 +123,7 @@ $(document).ready(function() {
     function solveMap(){
         drawMap();
         if (openSet.length < 1){
-            document.body.appendChild(document.createElement("p")).innerHTML = "No path!";
+            alert("No path!");
             return;
         }
         var currentNode = openSet.splice(0, 1)[0];
@@ -146,12 +146,11 @@ $(document).ready(function() {
     // the wrapper div in HTML
  startENABLED = true;
     $("#startNode").click(function() { 
-        console.log("is start enabled?" + startENABLED);
         canvas.mousemove(function(e){
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
                 SELECTEDBOX = $("<div id=selectedBox></div>");
-                SELECTEDBOX.css({width: pixelSizeX - 2, height:  pixelSizeY -2});
+                SELECTEDBOX.css({width: pixelSizeX , height:  pixelSizeY});
                 $("#mycanvasWrapper").prepend(SELECTEDBOX);
             }
             SELECTEDBOX.css({
@@ -178,7 +177,7 @@ $(document).ready(function() {
 
         function fillPixel(pixel){
             ctx.fillStyle = "#0275d8";
-            ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);
+            ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX, pixelSizeY);
             startNodeX = pixel[0];
             startNodeY  = pixel[1];
         }
@@ -186,12 +185,11 @@ $(document).ready(function() {
 
     endENABLED = true;
     $("#endNode").click( function() { 
-        console.log("is end enabled?" + endENABLED);
         canvas.mousemove(function(e){
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
                 SELECTEDBOX = $("<div id=selectedBox></div>");
-                SELECTEDBOX.css({width: pixelSizeX - 2, height:  pixelSizeY -2});
+                SELECTEDBOX.css({width: pixelSizeX, height:  pixelSizeY});
                 $("#mycanvasWrapper").prepend(SELECTEDBOX);
             }
             SELECTEDBOX.css({
@@ -219,7 +217,7 @@ $(document).ready(function() {
 
             function fillPixel(pixel){
                 ctx.fillStyle = "#d9534f";
-                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);      
+                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX, pixelSizeY);      
                 endNodeX= pixel[0];
                 endNodeY = pixel[1];  
             }
@@ -231,13 +229,11 @@ $(document).ready(function() {
     let walls = []
     wallENABLED = true;
     $("#walls").click( function(){
-        console.log("WALL?" + wallENABLED);
         canvas.mousemove(function(e){
-
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
                 SELECTEDBOX = $("<div id=selectedBox></div>");
-                SELECTEDBOX.css({width: pixelSizeX - 2, height:  pixelSizeY -2});
+                SELECTEDBOX.css({width: pixelSizeX , height:  pixelSizeY});
                 $("#mycanvasWrapper").prepend(SELECTEDBOX);
             }
             SELECTEDBOX.css({
@@ -262,7 +258,7 @@ $(document).ready(function() {
                 }
             function fillPixel(pixel){
                 ctx.fillStyle = "#000000";
-                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);
+                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX, pixelSizeY);
                 walls.push({
                     x : pixel[0],
                     y : pixel[1]
@@ -283,7 +279,7 @@ $(document).ready(function() {
             }
             function deletePixel(pixel){
                 ctx.fillStyle = "#FFFFFF";
-                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);
+                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX, pixelSizeY);
                 walls.pop(pixel);
             }
     });
@@ -294,22 +290,25 @@ $(document).ready(function() {
     function drawMap(){
         var a;
         if (path.length){
+            var txt = "Path Length: " + (path.length - 1) + " \nPath: [";
             for (let i = 0; i < path.length; i++){
                 a = path[i];
                 ctx.fillStyle = "#00FF7F";
-                ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX - 1 , pixelSizeY - 1 );
+                ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX , pixelSizeY );
+                txt += "(" + a.x + ", " + a.y + ") ";
             }
+            alert(txt);
             return;
         }
         for (let i = 0; i< openSet.length; i++){
             a = openSet[i];
-            ctx.fillStyle = "#FF6347";
-            ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY , pixelSizeX - 1 , pixelSizeY - 1);
+            ctx.fillStyle = "#00BFFF";
+            ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY , pixelSizeX , pixelSizeY);
         }
         for (let i= 0; i< closedSet.length; i++){
             a = closedSet[i];
-            ctx.fillStyle = "#8B0000";
-            ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX- 1, pixelSizeY - 1);
+            ctx.fillStyle = "#4682B4";
+            ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX, pixelSizeY);
         }
     }
     // Given the dimensions of the map, we create the map that our
