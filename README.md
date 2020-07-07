@@ -15,6 +15,6 @@ My algorithm supports diaganol pathfinding, allowing it to find the fastest path
 
 ## Have fun!
 Now that you know the functionality, feel free to go crazy and draw whatever kind of mazes you can think of! If you find any bugs or issues feel free to leave an issue or a pull request.
-![](sources/demo_2.gif)
+![](sources/demo2.gif)
 
 *A project by Nish Gowda*
