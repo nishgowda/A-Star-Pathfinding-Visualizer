@@ -150,7 +150,7 @@ $(document).ready(function() {
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
                 SELECTEDBOX = $("<div id=selectedBox></div>");
-                SELECTEDBOX.css({width: pixelSizeX , height:  pixelSizeY});
+                SELECTEDBOX.css({width: pixelSizeX -2, height:  pixelSizeY -2});
                 $("#mycanvasWrapper").prepend(SELECTEDBOX);
             }
             SELECTEDBOX.css({
@@ -177,7 +177,7 @@ $(document).ready(function() {
 
         function fillPixel(pixel){
             ctx.fillStyle = "#0275d8";
-            ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX, pixelSizeY);
+            ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX -1, pixelSizeY-1);
             startNodeX = pixel[0];
             startNodeY  = pixel[1];
         }
@@ -189,7 +189,7 @@ $(document).ready(function() {
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
                 SELECTEDBOX = $("<div id=selectedBox></div>");
-                SELECTEDBOX.css({width: pixelSizeX, height:  pixelSizeY});
+                SELECTEDBOX.css({width: pixelSizeX -2, height :  pixelSizeY-2 });
                 $("#mycanvasWrapper").prepend(SELECTEDBOX);
             }
             SELECTEDBOX.css({
@@ -217,7 +217,7 @@ $(document).ready(function() {
 
             function fillPixel(pixel){
                 ctx.fillStyle = "#d9534f";
-                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX, pixelSizeY);      
+                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX -1, pixelSizeY -1);      
                 endNodeX= pixel[0];
                 endNodeY = pixel[1];  
             }
@@ -233,7 +233,7 @@ $(document).ready(function() {
             let pixel = [Math.floor(e.offsetX / (pixelSizeX)), Math.floor(e.offsetY / (pixelSizeY))];
             if (!SELECTEDBOX){
                 SELECTEDBOX = $("<div id=selectedBox></div>");
-                SELECTEDBOX.css({width: pixelSizeX , height:  pixelSizeY});
+                SELECTEDBOX.css({width: pixelSizeX -2 , height:  pixelSizeY -2});
                 $("#mycanvasWrapper").prepend(SELECTEDBOX);
             }
             SELECTEDBOX.css({
@@ -256,14 +256,14 @@ $(document).ready(function() {
                     pixel = [Math.floor(offsetX / pixelSizeX), Math.floor(offsetY / pixelSizeY)];
                     fillPixel(pixel);
                 }
-            function fillPixel(pixel){
-                ctx.fillStyle = "#000000";
-                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX, pixelSizeY);
-                walls.push({
-                    x : pixel[0],
-                    y : pixel[1]
-                });
-        }
+                function fillPixel(pixel){
+                    ctx.fillStyle = "#000000";
+                    ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);
+                    walls.push({
+                        x : pixel[0],
+                        y : pixel[1]
+                    });
+            }
         // Allows user to delete any of the walls they created.
             canvas.on('mousemove touchmove touchstart mousedown', mouseUnfill);
             function mouseUnfill(e){  
@@ -279,7 +279,7 @@ $(document).ready(function() {
             }
             function deletePixel(pixel){
                 ctx.fillStyle = "#FFFFFF";
-                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX, pixelSizeY);
+                ctx.fillRect(pixel[0] * pixelSizeX, pixel[1] * pixelSizeY, pixelSizeX - 1, pixelSizeY - 1);
                 walls.pop(pixel);
             }
     });
@@ -294,11 +294,10 @@ $(document).ready(function() {
             for (let i = 0; i < path.length; i++){
                 a = path[i];
                 ctx.fillStyle = "#00FF7F";
-                ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX , pixelSizeY );
+                ctx.fillRect(a.x * pixelSizeX, a.y * pixelSizeY, pixelSizeX  , pixelSizeY );
                 txt += "(" + a.x + ", " + a.y + ") ";
             }
             alert(txt);
-            return;
         }
         for (let i = 0; i< openSet.length; i++){
             a = openSet[i];
